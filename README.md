@@ -28,7 +28,7 @@ El objetivo del juego es obtener la mayor cantidad de puntos al formar palabras 
 - El juego termina cuando: ya no hay fichas en el monton; cuando ningún jugador puede colocar más palabras en el tablero y han pasado 5 veces consecutivas.
 
 
-![](https://imgur.com/a/8uKQJrX)
+![](https://i.imgur.com/cqatSC9.png)
 
 ### UML
-![](https://imgur.com/a/lHepfCw)
+![](https://i.imgur.com/X1susd7.png)
