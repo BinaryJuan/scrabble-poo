@@ -1,0 +1,319 @@
+@startuml Scrabble - Diagrama de Clases
+!theme plain
+
+title Juego Scrabble - Arquitectura MVC con RMI
+
+' ============= INTERFACES =============
+
+interface IJugador {
+    +getId(): int
+    +getNombre(): String
+    +getPuntaje(): int
+    +getAtril(): List<Letra>
+    +isConectado(): boolean
+    +setConectado(conectado: boolean): void
+    +setPuntaje(puntaje: int): void
+}
+
+interface IModeloRemoto {
+    +addJugador(jugador: Jugador): void
+    +comenzarPartida(): void
+    +agregarPalabra(x: String, y: String, palabra: Palabra, disposicion: String): boolean
+    +cambiarFichas(fichas: char[]): boolean
+    +pasarTurno(): void
+    +siguienteTurno(): void
+    +getTablero(): Casillero[][]
+    +getTurnoActual(): int
+    +getJugadores(): ArrayList<Jugador>
+    +getBolsaDeFichas(): BolsaFichas
+}
+
+interface IControladorRemoto {
+    +cambiarFichas(cadena: String): boolean
+    +agregarPalabra(x: String, y: String, cadena: String, disposicion: String): boolean
+    +obtenerJugadores(): ArrayList<IJugador>
+    +obtenerTurnoActual(): int
+}
+
+interface Vista {
+    +iniciar(): void
+    +mostrarMensaje(mensaje: String): void
+    +mostrarTablero(tablero: Casillero[][]): void
+    +mostrarTurnoActual(jugador: IJugador): void
+}
+
+' ============= MODELO =============
+
+class ModeloJuego {
+    -tablero: Tablero
+    -bolsaDeFichas: BolsaFichas
+    -jugadores: ArrayList<Jugador>
+    -partidas: ArrayList<Partida>
+    -turnoActual: int
+    -turnosConsecutivosPasados: int
+    -juegoTerminado: boolean
+    -ranking: Ranking
+    
+    +addJugador(jugador: Jugador): void
+    +comenzarPartida(): void
+    +agregarPalabra(): boolean
+    +cambiarFichas(fichas: char[]): boolean
+    +validarPalabra(): boolean
+    +siguienteTurno(): void
+    +pasarTurno(): void
+    +finalizarPartida(): void
+    +guardarPartida(): void
+    +cargarPartida(id: int): void
+    +obtenerJugadorGanador(): Jugador
+}
+
+class Jugador {
+    -id: int
+    -nombre: String
+    -puntaje: int
+    -atril: List<Letra>
+    -conectado: boolean
+    
+    +Jugador(nombre: String)
+    +equals(obj: Object): boolean
+    +hashCode(): int
+    +mostrarAtril(): void
+}
+
+class Tablero {
+    -modelo: ModeloJuego
+    -tablero: Casillero[][]
+    -casilleroVacio: String
+    
+    +comenzarPartida(jugadores: ArrayList<Jugador>, bolsa: BolsaFichas): void
+    +addPalabra(): void
+    +cambiarFichas(bolsa: BolsaFichas, jugador: Jugador, fichas: char[]): boolean
+    +calcularPuntajePalabra(palabra: Palabra, x: int, y: int, horizontal: boolean): int
+    +repartirFichas(bolsa: BolsaFichas, jugador: Jugador, letra: Letra): void
+    +completarAtrilJugador(bolsa: BolsaFichas, jugador: Jugador): void
+}
+
+class BolsaFichas {
+    -fichas: HashMap<String, Integer>
+    -cantidadFichas: int
+    
+    +tieneFichasDisponibles(letra: String): boolean
+    +estaVacia(): boolean
+    +get(letra: String): int
+    +put(letra: String, cantidad: int): void
+    +reducirFicha(letra: String, cantidad: int): boolean
+}
+
+class Letra {
+    -id: int
+    -descripcion: String
+    -puntos: int
+    
+    +Letra(descripcion: String, puntos: int)
+    +getDescripcion(): String
+    +getPuntos(): int
+    +getId(): int
+}
+
+class Palabra {
+    -letras: ArrayList<Letra>
+    
+    +addLetra(letra: Letra): void
+    +getLetras(): ArrayList<Letra>
+    +toString(): String
+}
+
+class Casillero {
+    -letra: Letra
+    -premio: Object
+    
+    +estaOcupado(): boolean
+    +setLetra(letra: Letra): void
+    +getLetra(): Letra
+    +getPremio(): Object
+}
+
+class CasilleroVacio {
+    +CasilleroVacio()
+}
+
+class PremioLetra {
+    -multiplicador: int
+    +PremioLetra(multiplicador: int)
+    +getMultiplicador(): int
+}
+
+class PremioPalabra {
+    -multiplicador: int
+    +PremioPalabra(multiplicador: int)
+    +getMultiplicador(): int
+}
+
+class Partida {
+    -id: int
+    -fechaHora: String
+    -tablero: Tablero
+    -bolsaDeFichas: BolsaFichas
+    -jugadores: ArrayList<Jugador>
+    -turnoActual: int
+    
+    +getId(): int
+    +getFechaHora(): String
+    +toString(): String
+}
+
+class Ranking {
+    -entradas: List<EntradaRanking>
+    
+    +actualizarConPartida(jugadores: List<Jugador>): void
+    +obtenerTop5(): List<Jugador>
+    +guardarRanking(): void
+    +cargarRanking(): void
+}
+
+' ============= CONTROLADOR =============
+
+class Controlador {
+    -modelo: IModeloRemoto
+    -vista: Vista
+    -jugadorCliente: IJugador
+    -finPartidaProcesado: boolean
+    
+    +cambiarFichas(cadena: String): boolean
+    +agregarPalabra(): boolean
+    +pasarTurno(): void
+    +obtenerJugadores(): ArrayList<IJugador>
+    +obtenerTurnoActual(): int
+    +actualizar(observable: IObservableRemoto, evento: Object): void
+}
+
+' ============= VISTA =============
+
+class VistaGrafica {
+    -controlador: Controlador
+    -cliente: IJugador
+    -ventanaTablero: VentanaTablero
+    -nombreJugador: String
+    -juegoTerminado: boolean
+    
+    +VistaGrafica(controlador: Controlador, nombreJugador: String)
+    +iniciar(): void
+    +esTurnoActual(): boolean
+    +estaConectado(): boolean
+    +mostrarMensaje(mensaje: String): void
+    +mostrarTablero(tablero: Casillero[][]): void
+    +bloquearJuego(): void
+}
+
+class VentanaTablero {
+    -frmScrabble: JFrame
+    -tablero: JTable
+    -tablaAtril: JTableAtril
+    -enviarPalabra: JButton
+    -cambioFichas: JButton
+    -pasarTurno: JButton
+    -juegoTerminado: boolean
+    
+    +mostrarTurnoActual(jugador: IJugador, cantFichas: int): void
+    +mostrarAtrilCliente(jugador: IJugador): void
+    +bloquearBotones(): void
+    +limpiar(): void
+}
+
+' ============= APLICACIONES =============
+
+class AppServidor {
+    +main(args: String[]): void
+}
+
+class AppClienteVistaGrafica {
+    +main(args: String[]): void
+    -esIpValida(ip: String): boolean
+    -esPortoValido(port: String): boolean
+    -esNombreValido(nombre: String): boolean
+}
+
+class AppCliente {
+    +main(args: String[]): void
+}
+
+' ============= UTILIDADES =============
+
+class ModeloTablero {
+    +getColumnCount(): int
+    +getRowCount(): int
+    +getValueAt(row: int, col: int): Object
+}
+
+class ModeloAtril {
+    +getColumnCount(): int
+    +getRowCount(): int
+    +getValueAt(row: int, col: int): Object
+}
+
+enum Evento {
+    NUEVA_PARTIDA
+    CAMBIO_ESTADO_PARTIDA
+    CAMBIO_FICHAS
+    NUEVA_PALABRA
+    FIN_PARTIDA
+    ERROR_VALIDACION_PALABRA
+    ERROR_ATRIL
+    JUGADOR_CONECTADO
+    JUGADOR_DESCONECTADO
+    PARTIDA_GUARDADA
+    PARTIDA_CARGADA
+}
+
+' ============= RELACIONES =============
+
+' Implementaciones de interfaces
+ModeloJuego ..|> IModeloRemoto
+Jugador ..|> IJugador
+Controlador ..|> IControladorRemoto
+VistaGrafica ..|> Vista
+
+' Composición y agregación - Modelo
+ModeloJuego *-- Tablero
+ModeloJuego *-- BolsaFichas
+ModeloJuego *-- Ranking
+ModeloJuego o-- Jugador
+ModeloJuego o-- Partida
+Tablero o-- Casillero
+Casillero o-- Letra
+Casillero o-- PremioLetra
+Casillero o-- PremioPalabra
+CasilleroVacio --|> Casillero
+Jugador o-- Letra
+Palabra o-- Letra
+Partida o-- Tablero
+Partida o-- BolsaFichas
+Partida o-- Jugador
+
+' MVC
+VistaGrafica --> Controlador
+Controlador --> IModeloRemoto
+VistaGrafica o-- IJugador
+
+' Vista
+VistaGrafica *-- VentanaTablero
+VentanaTablero o-- ModeloTablero
+VentanaTablero o-- ModeloAtril
+
+' Aplicaciones
+AppServidor ..> ModeloJuego
+AppClienteVistaGrafica ..> VistaGrafica
+AppClienteVistaGrafica ..> Controlador
+AppCliente ..> Controlador
+
+' Observer pattern
+ModeloJuego ..> Evento
+Controlador ..> Evento
+
+note top of ModeloJuego : Servidor RMI\nObservable remoto
+note top of VistaGrafica : Cliente RMI\nObserver remoto
+note top of Controlador : Patrón MVC\nObserver del modelo
+note bottom of BolsaFichas : 98 fichas iniciales\nDistribución según Scrabble español
+note bottom of Tablero : Tablero 15x15\nCon casilleros especiales
+
+@enduml

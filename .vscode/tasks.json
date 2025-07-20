@@ -1,0 +1,32 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Compilar Proyecto Scrabble",
+			"type": "shell",
+			"command": "javac",
+			"args": [
+				"-cp",
+				"bin;jgoodies-forms-1.8.0.jar;LibreriaRMIMVC.jar",
+				"-d",
+				"bin",
+				"-target",
+				"8",
+				"-source",
+				"8",
+				"src/modelo/scrabble/*.java",
+				"src/vista/scrabble/*.java",
+				"src/controlador/scrabble/*.java",
+				"src/utilidades/scrabble/*.java",
+				"src/cliente/scrabble/*.java",
+				"src/servidor/scrabble/*.java",
+				"src/principal/scrabble/*.java"
+			],
+			"group": "build",
+			"problemMatcher": [
+				"$javac"
+			],
+			"isBackground": false
+		}
+	]
+}

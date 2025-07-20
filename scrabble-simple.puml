@@ -1,0 +1,90 @@
+@startuml Scrabble - Diagrama Simplificado
+!theme plain
+
+title Juego Scrabble - Arquitectura Principal
+
+' ============= CAPA MODELO =============
+package "Modelo" {
+    class ModeloJuego {
+        -jugadores: List<Jugador>
+        -tablero: Tablero
+        -bolsaDeFichas: BolsaFichas
+        -turnoActual: int
+        +agregarPalabra(): boolean
+        +cambiarFichas(): boolean
+        +pasarTurno(): void
+    }
+    
+    class Jugador {
+        -nombre: String
+        -puntaje: int
+        -atril: List<Letra>
+        +equals(obj: Object): boolean
+    }
+    
+    class Tablero {
+        -tablero: Casillero[][]
+        +calcularPuntajePalabra(): int
+        +cambiarFichas(): boolean
+    }
+    
+    class BolsaFichas {
+        -fichas: Map<String, Integer>
+        +tieneFichasDisponibles(): boolean
+    }
+}
+
+' ============= CAPA VISTA =============
+package "Vista" {
+    class VistaGrafica {
+        -ventanaTablero: VentanaTablero
+        +esTurnoActual(): boolean
+        +mostrarMensaje(): void
+    }
+    
+    class VentanaTablero {
+        -cambioFichas: JButton
+        -pasarTurno: JButton
+        +bloquearBotones(): void
+    }
+}
+
+' ============= CAPA CONTROLADOR =============
+package "Controlador" {
+    class Controlador {
+        -modelo: IModeloRemoto
+        -vista: Vista
+        +cambiarFichas(): boolean
+        +actualizar(): void
+    }
+}
+
+' ============= APLICACIONES =============
+package "Aplicaciones" {
+    class AppServidor {
+        +main(): void
+    }
+    
+    class AppClienteVistaGrafica {
+        +main(): void
+    }
+}
+
+' ============= RELACIONES =============
+ModeloJuego *-- Tablero
+ModeloJuego *-- BolsaFichas
+ModeloJuego o-- Jugador
+
+VistaGrafica *-- VentanaTablero
+VistaGrafica --> Controlador
+Controlador --> ModeloJuego
+
+AppServidor ..> ModeloJuego
+AppClienteVistaGrafica ..> VistaGrafica
+AppClienteVistaGrafica ..> Controlador
+
+note top of ModeloJuego : Patrón Observer\nRMI Server
+note top of VistaGrafica : RMI Client\nObserver remoto
+note right of Controlador : Patrón MVC
+
+@enduml
