@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "AppCliente",
+            "request": "launch",
+            "mainClass": "cliente.scrabble.AppCliente",
+            "projectName": "Scrabble"
+        },
+        {
+            "type": "java",
+            "name": "🎮 Ejecutar Servidor Scrabble",
+            "request": "launch",
+            "mainClass": "servidor.scrabble.AppServidor",
+            "projectName": "Scrabble",
+            "classPaths": [
+                "${workspaceFolder}/bin",
+                "${workspaceFolder}/jgoodies-forms-1.8.0.jar",
+                "${workspaceFolder}/LibreriaRMIMVC.jar"
+            ]
+        },
+        {
+            "type": "java",
+            "name": "Ejecutar Cliente Scrabble",
+            "request": "launch",
+            "mainClass": "cliente.scrabble.AppClienteVistaGrafica",
+            "projectName": "Scrabble",
+            "classPaths": [
+                "${workspaceFolder}/bin",
+                "${workspaceFolder}/jgoodies-forms-1.8.0.jar",
+                "${workspaceFolder}/LibreriaRMIMVC.jar"
+            ]
+        }
+    ]
+}
