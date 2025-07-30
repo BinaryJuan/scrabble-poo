@@ -1,0 +1,71 @@
+@startuml Scrabble - Diagrama de Clases Simplificado
+!theme plain
+
+title Juego Scrabble - Clases Principales
+
+' ============= CAPA MODELO =============
+package "Modelo" {
+    class ModeloJuego
+    class Jugador
+    class Tablero
+    class BolsaFichas
+    class Letra
+    class Palabra
+    class Casillero
+    class Ranking
+    class Diccionario
+}
+
+' ============= CAPA VISTA =============
+package "Vista" {
+    class VistaGrafica
+    class VentanaTablero
+    class VentanaPrincipal
+    class VentanaRanking
+    class Vista
+}
+
+' ============= CAPA CONTROLADOR =============
+package "Controlador" {
+    class Controlador
+}
+
+' ============= UTILIDADES =============
+package "Utilidades" {
+    class ModeloTablero
+    class ModeloAtril
+    class JTableAtril
+}
+
+' ============= APLICACIONES =============
+package "Aplicaciones" {
+    class AppServidor
+    class AppClienteVistaGrafica
+    class AppCliente
+}
+
+' ============= RELACIONES PRINCIPALES =============
+ModeloJuego -- Tablero
+ModeloJuego -- BolsaFichas
+ModeloJuego -- Jugador
+ModeloJuego -- Ranking
+Tablero -- Casillero
+Jugador -- Letra
+Palabra -- Letra
+
+VistaGrafica -- VentanaTablero
+VistaGrafica -- Controlador
+Controlador -- ModeloJuego
+
+VentanaTablero -- ModeloTablero
+VentanaTablero -- JTableAtril
+
+AppServidor ..> ModeloJuego
+AppClienteVistaGrafica ..> VistaGrafica
+AppClienteVistaGrafica ..> Controlador
+
+note top of ModeloJuego : Observable RMI
+note top of Controlador : Observer MVC
+note bottom of "Aplicaciones" : Ejecutables principales
+
+@enduml

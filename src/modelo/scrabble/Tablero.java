@@ -367,14 +367,20 @@ public class Tablero implements Serializable{
 				}
 				else {
 					if(horizontal) {
-						if(!tablero[p - 1][q].getDescripcion().equals(casilleroVacio)
-								|| !tablero[p + 1][q].getDescripcion().equals(casilleroVacio)) {
+						// ARREGLO BUG #4: Validar límites del tablero antes de acceder a posiciones adyacentes
+						boolean hayAdyacenteArriba = (p > 1) && !tablero[p - 1][q].getDescripcion().equals(casilleroVacio);
+						boolean hayAdyacenteAbajo = (p < 15) && !tablero[p + 1][q].getDescripcion().equals(casilleroVacio);
+						
+						if(hayAdyacenteArriba || hayAdyacenteAbajo) {
 							valor = true;
 						}				
 					}
 					else {
-						if(!tablero[p][q - 1].getDescripcion().equals(casilleroVacio)
-								|| !tablero[p][q + 1].getDescripcion().equals(casilleroVacio)) {
+						// ARREGLO BUG #4: Validar límites del tablero antes de acceder a posiciones adyacentes
+						boolean hayAdyacenteIzquierda = (q > 1) && !tablero[p][q - 1].getDescripcion().equals(casilleroVacio);
+						boolean hayAdyacenteDerecha = (q < 15) && !tablero[p][q + 1].getDescripcion().equals(casilleroVacio);
+						
+						if(hayAdyacenteIzquierda || hayAdyacenteDerecha) {
 							valor = true;
 						}
 					}

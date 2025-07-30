@@ -13,11 +13,27 @@ public class ModeloAtril extends AbstractTableModel {
 
     public ModeloAtril(List<Letra> datos) {
     	int c = 0;
-    	this.datos = new Object[1][datos.size()];
-    	this.columnas = new String[datos.size()];
+    	// Asegurar que siempre haya al menos 7 columnas para evitar errores
+    	int numColumnas = Math.max(7, datos.size());
+    	this.datos = new Object[1][numColumnas];
+    	this.columnas = new String[numColumnas];
+    	
+    	// Inicializar nombres de columnas
+    	for(int i = 0; i < numColumnas; i++) {
+    		this.columnas[i] = "Ficha " + (i + 1);
+    	}
+    	
+    	// Llenar con las letras del atril
     	for(Letra l: datos) {
-    		this.datos[0][c] = l;
-    		c++;
+    		if(c < numColumnas) {
+    			this.datos[0][c] = l;
+    			c++;
+    		}
+    	}
+    	
+    	// Llenar espacios vacíos con null (se manejará en getValueAt)
+    	for(int i = c; i < numColumnas; i++) {
+    		this.datos[0][i] = null;
     	}
     }
 
@@ -30,24 +46,36 @@ public class ModeloAtril extends AbstractTableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
+    	// Validar índices
+    	if(rowIndex < 0 || rowIndex >= datos.length || 
+    	   columnIndex < 0 || columnIndex >= datos[0].length) {
+    		return ""; // Retornar cadena vacía para índices inválidos
+    	}
     	
-        Casillero objetoLetra = (Casillero) datos[0][columnIndex];
+    	Object objeto = datos[0][columnIndex];
+    	
+    	// Si no hay letra en esta posición, mostrar vacío
+    	if(objeto == null) {
+    		return "";
+    	}
 
-        // Dependiendo de la columna, devuelve el valor del atributo correspondiente
-        if(columnIndex >= 0 && columnIndex <= this.datos[0].length) {
-        	return objetoLetra.getDescripcion();
-        }
-        else {
-        	return new Object();
-        }
+        Casillero objetoLetra = (Casillero) objeto;
+        return objetoLetra.getDescripcion();
     }
     
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-    	super.setValueAt(columnas, rowIndex, columnIndex);
-        Casillero objetoLetra = (Casillero) datos[0][columnIndex];
-        if(aValue.getClass() == String.class) {
-        	objetoLetra.setDescripcion((String)aValue);        	
-        }
+    	// Validar índices antes de proceder
+    	if(rowIndex < 0 || rowIndex >= datos.length || 
+    	   columnIndex < 0 || columnIndex >= datos[0].length) {
+    		return; // No hacer nada si los índices son inválidos
+    	}
+    	
+    	Object objeto = datos[0][columnIndex];
+    	if(objeto != null && aValue instanceof String) {
+    		Casillero objetoLetra = (Casillero) objeto;
+    		objetoLetra.setDescripcion((String)aValue);
+    		fireTableCellUpdated(rowIndex, columnIndex);
+    	}
     }
     
     

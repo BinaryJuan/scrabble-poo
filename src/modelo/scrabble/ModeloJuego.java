@@ -224,10 +224,9 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 		//Devolvemos las fichas
 		boolean resultado = tablero.cambiarFichas(bolsaDeFichas, jugadorActual, fichasACambiar);
 		
-		// Si se cambiaron las fichas exitosamente, resetear el contador
+		// ARREGLO: Cambiar fichas cuenta como un turno pasado según reglas Scrabble
+		// NO resetear el contador - mantener la cuenta de turnos consecutivos
 		if (resultado) {
-			turnosConsecutivosPasados = 0;
-			
 			// Verificar si el juego debe terminar después de cambiar fichas
 			if (verificarFinDeJuego()) {
 				finalizarPartida();
@@ -243,16 +242,12 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	public synchronized void siguienteTurno() throws RemoteException{
 		// Si el juego ya terminó, no hacer nada
 		if (juegoTerminado) {
+			System.out.println("siguienteTurno(): Juego ya terminado, no cambiando turno");
 			return;
 		}
 		
-		// Verificar condiciones de fin de juego
-		if (verificarFinDeJuego()) {
-			finalizarPartida();
-			return;
-		}
-		
-		// Continuar con el siguiente turno
+		// Continuar con el siguiente turno sin verificar fin de juego aquí
+		// Las verificaciones se hacen en los métodos que llaman a este
 		if(++this.turnoActual < jugadores.size()) {
 			return;
 		}
@@ -265,6 +260,13 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	public synchronized void pasarTurno() throws RemoteException{
 		// Incrementar contador de turnos consecutivos pasados
 		turnosConsecutivosPasados++;
+		System.out.println("Turno pasado. Total consecutivos: " + turnosConsecutivosPasados);
+		
+		// Verificar si debe terminar el juego ANTES de cambiar turno
+		if (verificarFinDeJuego()) {
+			finalizarPartida();
+			return;
+		}
 		
 		siguienteTurno();
 		notificarObservadores(Evento.CAMBIO_ESTADO_PARTIDA);
@@ -285,9 +287,15 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	
 	/**
 	 * Verifica si el juego debe terminar según las reglas del Scrabble
+	 * ARREGLO: Sincronizado para prevenir condiciones de carrera
 	 * @return true si el juego debe terminar
 	 */
-	private boolean verificarFinDeJuego() throws RemoteException {
+	private synchronized boolean verificarFinDeJuego() throws RemoteException {
+		// Si ya terminó, no verificar de nuevo
+		if (juegoTerminado) {
+			return true;
+		}
+		
 		// Condición 1: No quedan más fichas en el montón
 		if (bolsaDeFichas.getCantidadFichas() == 0) {
 			System.out.println("Fin de juego: No quedan más fichas en el montón");
@@ -308,7 +316,7 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 			return true;
 		}
 		
-		// Condición 3: Todos los jugadores tienen el atril vacío (caso extremo)
+		// Condición 4: Todos los jugadores tienen el atril vacío (caso extremo)
 		boolean todosVacios = true;
 		for (Jugador jugador : jugadores) {
 			if (!jugador.getAtril().isEmpty()) {
@@ -326,11 +334,17 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	
 	/**
 	 * Finaliza la partida y actualiza el ranking con los jugadores
+	 * ARREGLO: Prevenir múltiples ejecuciones con doble verificación
 	 */
-	private void finalizarPartida() throws RemoteException {
-		if (!juegoTerminado) {
-			juegoTerminado = true;
+	private synchronized void finalizarPartida() throws RemoteException {
+		// Doble verificación para prevenir condiciones de carrera
+		if (juegoTerminado) {
+			System.out.println("finalizarPartida(): Juego ya terminado, ignorando llamada duplicada");
+			return;
 		}
+		
+		juegoTerminado = true;
+		System.out.println("finalizarPartida(): Iniciando finalización de partida");
 		
 		// Procesar puntaje final: restar puntos de fichas sobrantes en atriles
 		System.out.println("=== CALCULANDO PUNTAJE FINAL ===");

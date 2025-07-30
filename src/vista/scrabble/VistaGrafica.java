@@ -89,6 +89,8 @@ public class VistaGrafica implements Vista{
 					}
 					
 					if(!controlador.agregarPalabra(x, y, cadenaString, disposicion)) {
+						// ARREGLO BUG #2: Restaurar fichas en el atril cuando hay error
+						ventanaTablero.restaurarFichasEnError();
 						mostrarMensaje("Error: La palabra '" + cadenaString + "' no es válida o no se puede colocar en esa posición");
 					} else {
 						ventanaTablero.limpiar();

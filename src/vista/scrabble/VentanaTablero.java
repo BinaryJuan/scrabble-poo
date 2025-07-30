@@ -124,9 +124,8 @@ public class VentanaTablero implements Ventana{
 			));
 		
 		// Aplicar renderer de colores después de cargar el modelo
-		for (int i = 0; i < tablero.getColumnCount(); i++) {
-			tablero.getColumnModel().getColumn(i).setCellRenderer(new ColoredTableCellRenderer());
-		}
+		// Aplicar de forma síncrona para evitar problemas de colores
+		aplicarRendererTablero();
 	}
 
 
@@ -172,6 +171,8 @@ public class VentanaTablero implements Ventana{
 		this.turnoDe.setText(jugador.getNombre());
 		this.puntaje.setText(jugador.getPuntaje() + "");
 		this.tablaAtril.setModel(new ModeloAtril(jugador.getAtril()));
+		// Aplicar renderer después de cambiar el modelo
+		aplicarRendererAtril();
 		this.cntFichas.setText(cantidadFichas + "");
 	}
 	
@@ -255,8 +256,20 @@ public class VentanaTablero implements Ventana{
 	 * Actualiza solo el atril y puntaje del cliente específico
 	 */
 	public void mostrarAtrilCliente(IJugador miJugador) {
-		this.puntaje.setText(miJugador.getPuntaje() + "");
-		this.tablaAtril.setModel(new ModeloAtril(miJugador.getAtril()));
+		try {
+			this.puntaje.setText(miJugador.getPuntaje() + "");
+			
+			// Crear nuevo modelo con validaciones
+			ModeloAtril nuevoModelo = new ModeloAtril(miJugador.getAtril());
+			this.tablaAtril.setModel(nuevoModelo);
+			
+			// Re-aplicar el renderer después de cambiar el modelo
+			aplicarRendererAtril();
+			
+		} catch (Exception e) {
+			System.err.println("Error al actualizar atril: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 
 	public JFrame parentComponent() {
@@ -268,6 +281,20 @@ public class VentanaTablero implements Ventana{
 		coorX.setText("");
 		coorY.setText("");
 		// cadenaFichas eliminado - ahora todo usa el campo palabra
+	}
+	
+	/**
+	 * ARREGLO BUG #2: Restaura las fichas al atril cuando hay un error en la jugada
+	 * Usa el método deshacer() del JTableAtril para restaurar las fichas que se sacaron
+	 */
+	public void restaurarFichasEnError() {
+		if (tablaAtril != null) {
+			tablaAtril.deshacer(); // Restaura las fichas que se removieron visualmente
+		}
+		// También limpiar el campo de palabra para empezar de nuevo
+		if (palabra != null) {
+			palabra.setText("");
+		}
 	}
 	
 	/**
@@ -397,11 +424,15 @@ public class VentanaTablero implements Ventana{
 		tablero.setDefaultEditor(Object.class, null);
         
         // Aplicar el renderer personalizado con colores a todas las columnas de la tabla
-        for (int i = 0; i < tablero.getColumnCount(); i++) {
-        	tablero.getColumnModel().getColumn(i).setCellRenderer(new ColoredTableCellRenderer());
-        	tablero.getColumnModel().getColumn(i).setPreferredWidth(30);
-        	tablero.getColumnModel().getColumn(i).setResizable(false);
-        } 
+        aplicarRendererTablero();
+        
+        // Configurar propiedades de columnas
+        if(tablero.getColumnCount() > 0) {
+        	for (int i = 0; i < tablero.getColumnCount(); i++) {
+        		tablero.getColumnModel().getColumn(i).setPreferredWidth(30);
+        		tablero.getColumnModel().getColumn(i).setResizable(false);
+        	}
+        }
         
         // Configurar encabezados
         tablero.getTableHeader().setReorderingAllowed(false);
@@ -434,9 +465,8 @@ public class VentanaTablero implements Ventana{
         tablaAtril.setDefaultEditor(Object.class, null);
         
         // Aplica el renderizador a todas las columnas de la tabla
-        for (int i = 0; i < tablaAtril.getColumnCount(); i++) {
-        	tablaAtril.getColumnModel().getColumn(i).setCellRenderer(new DraggableCellRenderer());
-        }
+        // Aplicar renderer de forma segura
+        aplicarRendererAtril();
 
         // Establecer el renderizador personalizado para las celdas
         tablaAtril.setDefaultRenderer(Object.class, new DraggableCellRenderer());
@@ -849,6 +879,39 @@ public class VentanaTablero implements Ventana{
 			setBorder(BorderFactory.createLineBorder(Color.GRAY));
 			
 			return component;
+		}
+	}
+
+	/**
+	 * Aplica el renderer de colores al tablero de forma segura
+	 */
+	private void aplicarRendererTablero() {
+		try {
+			if(tablero != null && tablero.getColumnCount() > 0) {
+				for (int i = 0; i < tablero.getColumnCount(); i++) {
+					tablero.getColumnModel().getColumn(i).setCellRenderer(new ColoredTableCellRenderer());
+				}
+				tablero.repaint(); // Forzar repintado
+			}
+		} catch (Exception e) {
+			System.err.println("Error al aplicar renderer al tablero: " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Aplica el renderer al atril de forma segura
+	 */
+	private void aplicarRendererAtril() {
+		try {
+			if(tablaAtril != null && tablaAtril.getColumnCount() > 0) {
+				for (int i = 0; i < tablaAtril.getColumnCount(); i++) {
+					tablaAtril.getColumnModel().getColumn(i).setCellRenderer(new DraggableCellRenderer());
+				}
+				tablaAtril.revalidate();
+				tablaAtril.repaint();
+			}
+		} catch (Exception e) {
+			System.err.println("Error al aplicar renderer al atril: " + e.getMessage());
 		}
 	}
 
