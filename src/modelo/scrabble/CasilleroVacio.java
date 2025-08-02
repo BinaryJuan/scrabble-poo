@@ -37,7 +37,7 @@ public class CasilleroVacio implements Casillero, Serializable {
     
     @Override
     public int getPuntos() {
-        return 0; // Los casilleros vacíos no tienen puntos
+        return 0;
     }
     
     @Override
