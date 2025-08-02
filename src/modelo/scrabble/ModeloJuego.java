@@ -13,7 +13,6 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	private Tablero tablero;
 	private BolsaFichas bolsaDeFichas;
 	private ArrayList<Jugador> jugadores = new ArrayList<>();
-	private ArrayList<Partida> partidas = new ArrayList<>();
 	private int turnoActual;
 	
 	// Variables para el control de fin de juego
@@ -405,72 +404,7 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	
 	//Lectura de archivos
 	
-	public void cargarPartida(int idPartida) throws IOException, ClassNotFoundException, RemoteException{
 
-		if(idPartida < 1 || idPartida > partidas.size()) {
-			return;
-		}
-		
-		//Cargamos la lista de todas las partidas guardadas
-		ArrayList<Partida> listaPartidas = getListaPartidas();
-		
-		//Alias del objeto
-		Partida partidaACargar = listaPartidas.get(idPartida - 1);
-		
-		//Volcamos todo el contenido en el modelo
-		tablero = partidaACargar.getTablero();
-		bolsaDeFichas = partidaACargar.getBolsaDeFichas();
-		jugadores = partidaACargar.getJugadores();
-		turnoActual = partidaACargar.getTurnoActual();
-		
-		notificarObservadores(Evento.PARTIDA_CARGADA);
-		notificarObservadores(Evento.CAMBIO_ESTADO_PARTIDA);
-		
-	}
-	
-	
-	public void guardarPartida() throws IOException{
-		
-		if(this.getCantidadJugadores() != 0) {
-			Partida partidaActual = new Partida(tablero,bolsaDeFichas,jugadores,turnoActual);
-			partidas.add(partidaActual);
-			
-			try {
-	            FileOutputStream fos = new FileOutputStream("PartidasGuardadas.bin");
-	            ObjectOutputStream oos = new ObjectOutputStream(fos);
-	            oos.writeObject(partidas);
-	            fos.close();
-	        } catch (FileNotFoundException e) {
-	            throw new RuntimeException(e);
-	        } catch (IOException e) {
-	            throw new RuntimeException(e);
-	        }
-			
-			notificarObservadores(Evento.PARTIDA_GUARDADA);
-		}
-		
-	}
-	
-	
-	public ArrayList<Partida> getListaPartidas() throws IOException, ClassNotFoundException, RemoteException{
-
-		try {
-            FileInputStream fis = new FileInputStream("PartidasGuardadas.bin");
-            ObjectInputStream ois = new ObjectInputStream(fis);
-            @SuppressWarnings("unchecked")
-            ArrayList<Partida> listaPartidas = (ArrayList<Partida>) ois.readObject();
-            fis.close();
-            return listaPartidas;
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-	}
-	
-	
 	/**
 	 * Obtiene el top 5 de jugadores desde el ranking persistente.
 	 * Ya no lee todas las partidas, sino el ranking optimizado.
@@ -685,18 +619,6 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 		}
 	}
 	
-	/**
-	 * Devuelve la lista de partidas como interfaz IPartida.
-	 * Cumple con MVC: la conversión se hace en el modelo.
-	 */
-	public ArrayList<IPartida> getListaPartidasInterfaz() throws IOException, ClassNotFoundException, RemoteException {
-		ArrayList<Partida> partidas = getListaPartidas();
-		ArrayList<IPartida> listaPartidas = new ArrayList<>();
-		for (Partida p : partidas) {
-			listaPartidas.add(p);
-		}
-		return listaPartidas;
-	}
 
 
 		

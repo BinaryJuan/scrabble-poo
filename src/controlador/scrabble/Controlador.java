@@ -257,25 +257,6 @@ public class Controlador implements IControladorRemoto{
 		}
 		
 		
-		public void cargarPartida(int idPartida) throws IOException{
-			try {
-				modelo.cargarPartida(idPartida);			
-			}
-			catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		
-		public void guardarPartida() throws IOException{
-			try {
-				modelo.guardarPartida();
-			} catch (ClassNotFoundException | IOException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		
 		public ArrayList<IJugador> obtenerTop5Jugadores() throws IOException{
 			try {
 				// CUMPLIMIENTO MVC: Solo llamar al modelo
@@ -296,17 +277,6 @@ public class Controlador implements IControladorRemoto{
 			} catch (RemoteException e) {
 				e.printStackTrace();
 				return "Error al cargar el ranking.\nIntenta nuevamente m�s tarde.";
-			}
-		}
-		
-		
-		public ArrayList<IPartida> obtenerPartidas() throws IOException{
-			try {
-				// CUMPLIMIENTO MVC: Solo llamar al modelo
-				return modelo.getListaPartidasInterfaz();
-			} catch (ClassNotFoundException | RemoteException e) {
-				e.printStackTrace();
-				return new ArrayList<>();
 			}
 		}
 		
@@ -431,17 +401,6 @@ public class Controlador implements IControladorRemoto{
 						System.out.println("Error inesperado al manejar evento NUEVA_PARTIDA: " + e.getMessage());
 						e.printStackTrace();
 						vista.mostrarMensaje("Error al iniciar la partida: " + e.getMessage());
-					}
-					break;
-				case PARTIDA_CARGADA:
-					vista.mostrarMensaje("Se ha cargado la partida exitosamente.");
-					break;
-				case PARTIDA_GUARDADA:
-					vista.mostrarMensajePartidaGuardada();
-					try {
-						vista.mostrarPartidasGuardadas(obtenerPartidas());
-					} catch (IOException e) {
-						e.printStackTrace();
 					}
 					break;
 				case NUEVA_PALABRA:

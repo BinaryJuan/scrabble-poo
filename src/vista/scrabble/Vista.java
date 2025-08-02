@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import modelo.scrabble.Casillero;
 import modelo.scrabble.IJugador;
-import modelo.scrabble.IPartida;
-import modelo.scrabble.Jugador;
 
 public interface Vista {
 	
@@ -15,8 +13,6 @@ public interface Vista {
 	 void mostrarEstadoJugador(IJugador jugador);
 	 void mostrarTurnoActual(IJugador jugadorTurno);
 	 void mostrarAtrilCliente(IJugador miJugador);
-	 void mostrarMensajePartidaGuardada();
-	 void mostrarPartidasGuardadas(ArrayList<IPartida> partidas);
 	 void mostrarRanking();
 	 void mostrarFinalPartida(IJugador jugador);
 	 void mostrarMensaje(String mensaje);

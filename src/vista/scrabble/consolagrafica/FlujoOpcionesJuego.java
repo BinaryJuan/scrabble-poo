@@ -1,7 +1,5 @@
 package vista.scrabble.consolagrafica;
 
-import java.io.IOException;
-import java.rmi.RemoteException;
 import controlador.scrabble.Controlador;
 
 public class FlujoOpcionesJuego extends Flujo{
@@ -64,14 +62,7 @@ public class FlujoOpcionesJuego extends Flujo{
     }
     
     public Flujo volverMenuPrincipal() {
-    	try {
-    		controlador.guardarPartida();
-    		return new FlujoMenuPrincipal(vista,controlador);
-		} catch (RemoteException e) {
-			return null;
-		} catch (IOException e) {
-			return this;
-		}
+    	return new FlujoMenuPrincipal(vista,controlador);
     }
 	
 }

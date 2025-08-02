@@ -21,8 +21,6 @@ public interface IModeloRemoto extends IObservableRemoto, Serializable{
 
 	void siguienteTurno() throws RemoteException;
 
-	void guardarPartida() throws IOException, ClassNotFoundException, RemoteException;
-
 	int obtenerGanador() throws RemoteException;
 
 	boolean isPrimerMovimiento() throws RemoteException;
@@ -42,18 +40,12 @@ public interface IModeloRemoto extends IObservableRemoto, Serializable{
 	int getTurnoActual() throws RemoteException;
 	
 	void notificarObservadores(Object obj) throws RemoteException;
-	
-	ArrayList<Partida> getListaPartidas() throws IOException, ClassNotFoundException, RemoteException;
-	
-	void cargarPartida(int idPartida) throws IOException, ClassNotFoundException, RemoteException;
 
 	ArrayList<Jugador> getTop5Jugadores() throws RemoteException, ClassNotFoundException, IOException;
 	
 	ArrayList<IJugador> getTop5JugadoresInterfaz() throws RemoteException, ClassNotFoundException, IOException;
 	
 	String getRankingTexto() throws RemoteException;
-	
-	ArrayList<IPartida> getListaPartidasInterfaz() throws IOException, ClassNotFoundException, RemoteException;
 
 	boolean validarPalabra(int x, int y, Palabra palabraActual, boolean horizontal) throws RemoteException;
 	

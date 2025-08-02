@@ -11,7 +11,6 @@ import java.awt.Dimension;
 import modelo.scrabble.Casillero;
 import modelo.scrabble.Evento;
 import modelo.scrabble.IJugador;
-import modelo.scrabble.IPartida;
 import vista.scrabble.Vista;
 import javax.swing.JTextArea;
 import java.io.IOException;
@@ -267,18 +266,6 @@ public class ConsolaGrafica implements Vista{
 		mostrarFlujoOpcionesJuego();
 	}
 
-	public void mostrarPartidasGuardadas(Object arg0) {
-		ArrayList<IPartida> listaPartidas = new ArrayList<>();
-		try {
-			listaPartidas = controlador.obtenerPartidas();
-			for(IPartida p: listaPartidas) {
-				mostrarMensaje(p.toString());					
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
 	public void mostrarPartidasGuardadas() {}
 
 	public void mostrarRanking() {
@@ -301,18 +288,6 @@ public class ConsolaGrafica implements Vista{
 		flujoActual.mostarMenuTextual();
 	}
 	
-	public void mostrarMensajePartidaGuardada() {
-		mostrarMensaje("Se ha guardado la partida.");
-		flujoActual = new FlujoMenuPrincipal(this,controlador);
-		flujoActual.mostarMenuTextual();
-	}
-
-	@Override
-	public void mostrarPartidasGuardadas(ArrayList<IPartida> partidas) {
-		// Mostrar partidas guardadas en consola
-		
-	}
-
 	public void mostrarFinalPartida(IJugador jugador) {
 		flujoActual = new FlujoFinalPartida(this, controlador, jugador);
 		flujoActual.mostarMenuTextual();

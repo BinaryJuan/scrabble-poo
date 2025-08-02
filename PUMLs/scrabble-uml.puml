@@ -62,8 +62,6 @@ class ModeloJuego {
     +siguienteTurno(): void
     +pasarTurno(): void
     +finalizarPartida(): void
-    +guardarPartida(): void
-    +cargarPartida(id: int): void
     +obtenerJugadorGanador(): Jugador
 }
 
