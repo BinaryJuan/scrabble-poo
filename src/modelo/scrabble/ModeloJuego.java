@@ -223,8 +223,7 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 		//Devolvemos las fichas
 		boolean resultado = tablero.cambiarFichas(bolsaDeFichas, jugadorActual, fichasACambiar);
 		
-		// ARREGLO: Cambiar fichas cuenta como un turno pasado según reglas Scrabble
-		// NO resetear el contador - mantener la cuenta de turnos consecutivos
+		// Cambiar fichas cuenta como un turno pasado según reglas Scrabble
 		if (resultado) {
 			// Verificar si el juego debe terminar después de cambiar fichas
 			if (verificarFinDeJuego()) {
@@ -286,7 +285,6 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	
 	/**
 	 * Verifica si el juego debe terminar según las reglas del Scrabble
-	 * ARREGLO: Sincronizado para prevenir condiciones de carrera
 	 * @return true si el juego debe terminar
 	 */
 	private synchronized boolean verificarFinDeJuego() throws RemoteException {
@@ -333,10 +331,8 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 	
 	/**
 	 * Finaliza la partida y actualiza el ranking con los jugadores
-	 * ARREGLO: Prevenir múltiples ejecuciones con doble verificación
 	 */
 	private synchronized void finalizarPartida() throws RemoteException {
-		// Doble verificación para prevenir condiciones de carrera
 		if (juegoTerminado) {
 			System.out.println("finalizarPartida(): Juego ya terminado, ignorando llamada duplicada");
 			return;
@@ -345,24 +341,17 @@ public class ModeloJuego extends ObservableRemoto implements IModeloRemoto {
 		juegoTerminado = true;
 		System.out.println("finalizarPartida(): Iniciando finalización de partida");
 		
+		// Actualizar el ranking con el puntaje antes de descontar fichas restantes
+		ranking.actualizarConPartida(jugadores);
+		
 		// Procesar puntaje final: restar puntos de fichas sobrantes en atriles
-		System.out.println("=== CALCULANDO PUNTAJE FINAL ===");
 		for (Jugador jugador : jugadores) {
 			int puntajeOriginal = jugador.getPuntaje();
 			int puntosARestar = calcularPuntosFichasAtril(jugador);
-			int puntajeFinal = Math.max(0, puntajeOriginal - puntosARestar); // No permitir puntajes negativos
+			int puntajeFinal = Math.max(0, puntajeOriginal - puntosARestar);
 			
 			jugador.setPuntaje(puntajeFinal);
-			
-			System.out.println(jugador.getNombre() + ":");
-			System.out.println("  Puntaje durante partida: " + puntajeOriginal);
-			System.out.println("  Puntos de fichas restantes: -" + puntosARestar);
-			System.out.println("  Puntaje final: " + puntajeFinal);
-			System.out.println();
 		}
-		
-		// Actualizar el ranking con todos los jugadores de esta partida
-		ranking.actualizarConPartida(jugadores);
 		
 		// Mostrar información de fin de partida
 		System.out.println("=== PARTIDA TERMINADA ===");

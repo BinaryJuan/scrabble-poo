@@ -478,7 +478,7 @@ public class Controlador implements IControladorRemoto{
 					vista.mostrarMensaje("<La palabra ingresada no es valida, intente con otra.>");
 					break;
 				case ERROR_VALIDACION_PALABRA:
-					vista.mostrarMensaje("<La palabra debe al menos estar en contacto con una ficha ya existente.>");
+					vista.mostrarMensaje("Error: No se pudo completar la acción. Verifique las fichas seleccionadas o la conectividad.");
 					break;
 				case ERROR_DISPOSICION:
 					vista.mostrarMensaje("<Ingrese un n�mero valido entre 1 y 2.>");

@@ -192,14 +192,14 @@ public class Tablero implements Serializable{
 				}
 			}
 			if(!tieneLetra) {
-				modelo.notificarObservadores(Evento.ERROR_ATRIL);
+				modelo.notificarObservadores(Evento.ERROR_VALIDACION_PALABRA);
 				return false;
 			}
 		}
 		
 		// Validar que hay suficientes fichas en la bolsa para el intercambio
 		if(bolsaDeFichas.getCantidadFichas() < fichasACambiar.length) {
-			modelo.notificarObservadores(Evento.ERROR_ATRIL);
+			modelo.notificarObservadores(Evento.ERROR_VALIDACION_PALABRA);
 			return false;
 		}
 		
